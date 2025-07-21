@@ -133,6 +133,35 @@ open class RtspSurfaceView: SurfaceView {
         rtspProcessor.dataListener = listener
     }
 
+    fun release() {
+        if (DEBUG) Log.v(TAG, "release()")
+
+        // Stop RTSP client if it's running
+        stop()
+
+        // Remove surface callback to prevent any new rendering attempts
+        holder.removeCallback(surfaceCallback)
+
+        // Stop all decoders
+        rtspProcessor.stopDecoders()
+
+        // Remove listeners
+        rtspProcessor.statusListener = null
+        rtspProcessor.dataListener = null
+
+        // Clear statistics
+        statistics = Statistics()
+
+        // Reset all properties to default values
+        videoRotation = 0
+        videoDecoderType = DecoderType.HARDWARE
+        experimentalUpdateSpsFrameWithLowLatencyParams = false
+        debug = false
+
+        // Force garbage collection hint
+        System.gc()
+    }
+
     companion object {
         private val TAG: String = RtspSurfaceView::class.java.simpleName
         private const val DEBUG = false
